@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\LoginRequest;
 use App\Models\Admin;
+use App\Services\Admin\AdminService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,10 +34,15 @@ class AdminController extends Controller
     public function store(LoginRequest $request)
     {
         $data = $request->all();
-        if (Auth::guard('admin')->attempt(['email' => $data['email'], 'password' => $data['password']])) {
+        //Use AdminService Class to login Admin
+        $service = new AdminService();
+        $loginStaus = $service->login($data);
+        if ($loginStaus == 1) {
+            //Login Success
             return redirect()->route('dashboard.index');
         } else {
-            return redirect()->back()->with('error_message', 'Invalid Email or Password');
+            //Login Failed
+            return redirect()->back()->with('error_message', 'Invalid Credentials');
         }
 
     }
